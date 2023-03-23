@@ -1,0 +1,68 @@
+name: docker
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - llvm-16-ports
+
+jobs:
+  docker:
+    strategy:
+      fail-fast: false
+      matrix:
+        base-image-tag:
+          - bullseye
+          - buster
+          - jammy
+          - focal
+          - bionic
+        llvm-version:
+          - "16.0.0"
+        llvm-configuration:
+          - extra-cmake-args: ""
+            config-suffix: ""
+          - extra-cmake-args: -DLLVM_LINK_LLVM_DYLIB=ON
+            config-suffix: -slim
+    env:
+      DOCKERHUB_REPOSITORY: zhongruoyu/llvm-16-ports
+      PLATFORMS: linux/amd64
+      BINUTILS_VERSION: "2.40"
+      CMAKE_VERSION: "3.26.0"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set environment variables
+        run: |
+          cat <<EOF | tee -a "$GITHUB_ENV"
+          BASE_IMAGE_TAG=${{ matrix.base-image-tag }}
+          LLVM_VERSION=${{ matrix.llvm-version }}
+          LLVM_VERSION_MAJOR=$(echo "${{ matrix.llvm-version }}" | cut -d '.' -f 1)
+          LLVM_VERSION_MINOR=$(echo "${{ matrix.llvm-version }}" | cut -d '.' -f 2)
+          LLVM_VERSION_REVISION=$(echo "${{ matrix.llvm-version }}" | cut -d '.' -f 3)
+          EXTRA_CMAKE_ARGS=${{ matrix.llvm-configuration.extra-cmake-args }}
+          CONFIG_SUFFIX=${{ matrix.llvm-configuration.config-suffix }}
+          EOF
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v3
+        with:
+          tags: |
+            ${{ env.DOCKERHUB_REPOSITORY }}:${{ env.LLVM_VERSION_MAJOR }}${{ env.CONFIG_SUFFIX }}-${{ env.BASE_IMAGE_TAG }}
+            ${{ env.DOCKERHUB_REPOSITORY }}:${{ env.LLVM_VERSION_MAJOR }}.${{ env.LLVM_VERSION_MINOR }}${{ env.CONFIG_SUFFIX }}-${{ env.BASE_IMAGE_TAG }}
+            ${{ env.DOCKERHUB_REPOSITORY }}:${{ env.LLVM_VERSION_MAJOR }}.${{ env.LLVM_VERSION_MINOR }}.${{ env.LLVM_VERSION_REVISION }}${{ env.CONFIG_SUFFIX }}-${{ env.BASE_IMAGE_TAG }}
+          platforms: ${{ env.PLATFORMS }}
+          build-args: |
+            BASE_IMAGE_TAG=${{ env.BASE_IMAGE_TAG }}
+            BINUTILS_VERSION=${{ env.BINUTILS_VERSION }}
+            CMAKE_VERSION=${{ env.CMAKE_VERSION }}
+            LLVM_VERSION=${{ env.LLVM_VERSION }}
+            EXTRA_CMAKE_ARGS=${{ env.EXTRA_CMAKE_ARGS }}
+          push: true
