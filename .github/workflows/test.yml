@@ -1,0 +1,46 @@
+name: test
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - core-set-output
+
+jobs:
+  set-output:
+    outputs:
+      foo: ${{ steps.set-output.outputs.foo }}
+      linux-runner: ${{ steps.set-output.outputs.linux-runner }}
+      bar: ${{ steps.set-output.outputs.bar }}
+      fail-fast: ${{ steps.set-output.outputs.fail-fast }}
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Set output
+        id: set-output
+        uses: actions/github-script@v6
+        with:
+          script: |
+            core.setOutput('foo', 'true')
+            core.setOutput('linux-runner', 'ubuntu-22.04')
+            return
+            core.setOutput('bar', 'true')
+            core.setOutput('fail-fast', 'true')
+      - name: Check output
+        run: |
+          echo "foo = ${{ steps.set-output.outputs.foo }}"
+          echo "linux-runner = ${{ steps.set-output.outputs.linux-runner }}"
+          echo "bar = ${{ steps.set-output.outputs.bar }}"
+          echo "fail-fast = ${{ steps.set-output.outputs.fail-fast }}"
+  check-output:
+    needs: set-output
+    if: ${{ fromJson(needs.set-output.outputs.foo) == false }}
+    strategy:
+      matrix:
+        include:
+          - runner: ${{ needs.setup_tests.outputs.linux-runner }}
+      fail-fast: ${{ fromJson(needs.set-output.outputs.fail-fast) }}
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: Pass
+        run: |
+          true
