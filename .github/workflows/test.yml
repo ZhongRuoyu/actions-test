@@ -1,0 +1,44 @@
+name: test
+
+on:
+  push:
+    branches:
+      - test_deps-if-fromJson
+
+jobs:
+  tap_syntax:
+    outputs:
+      testing_formulae: ${{ steps.set-output.outputs.testing_formulae }}
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Set output
+        id: set-output
+        uses: actions/github-script@v6
+        with:
+          script: |
+            core.setOutput('testing_formulae', 'a,b,c')
+  setup_tests:
+    outputs:
+      syntax-only: ${{ steps.set-output.outputs.syntax-only }}
+      test-dependents: ${{ steps.set-output.outputs.test-dependents }}
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Set output
+        id: set-output
+        uses: actions/github-script@v6
+        with:
+          script: |
+            core.setOutput('syntax-only', 'false')
+            core.setOutput('test-dependents', 'true')
+  test_deps:
+    needs: [tap_syntax, setup_tests]
+    if: >
+      fromJson(needs.setup_tests.outputs.syntax-only) == false &&
+      fromJson(needs.setup_tests.outputs.test-dependents) &&
+      fromJson(needs.tap_syntax.outputs.testing_formulae)
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "syntax-only = ${{ needs.setup_tests.outputs.syntax-only }}"
+          echo "test-dependents = ${{ needs.setup_tests.outputs.test-dependents }}"
+          echo "testing_formulae = ${{ needs.tap_syntax.outputs.testing_formulae }}"
