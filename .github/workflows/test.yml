@@ -1,0 +1,20 @@
+name: Test `grep` head build
+
+on:
+  push:
+    branches:
+      - grep-head
+
+jobs:
+  grep-head:
+    runs-on: macos-12
+    env:
+      HOMEBREW_NO_INSTALL_FROM_API: "1"
+    steps:
+      - uses: Homebrew/actions/setup-homebrew@master
+      - run: |
+          brew tap Homebrew/core
+          cd "$(brew --repo Homebrew/core)"
+          git fetch origin refs/pull/128815/head:grep-head-fix
+          git checkout grep-head-fix
+      - run: brew install --head --verbose grep
