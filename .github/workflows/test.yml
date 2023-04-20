@@ -12,9 +12,5 @@ jobs:
       HOMEBREW_NO_INSTALL_FROM_API: "1"
     steps:
       - uses: Homebrew/actions/setup-homebrew@master
-      - run: |
-          brew tap Homebrew/core
-          cd "$(brew --repo Homebrew/core)"
-          git fetch origin refs/pull/128815/head:grep-head-fix
-          git checkout grep-head-fix
+      - run: brew tap Homebrew/core
       - run: brew install --head --verbose grep
