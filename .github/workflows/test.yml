@@ -23,7 +23,7 @@ jobs:
     defaults:
       run:
         shell: /bin/bash -e {0}
-        working-directory: ${{ github.workspace }}
+        working-directory: /github/home
     steps:
       - run: pwd
       - run: df -h
