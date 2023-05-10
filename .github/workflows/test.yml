@@ -18,6 +18,10 @@ jobs:
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.runs-on }}
     container: ${{ matrix.container }}
+    defaults:
+      run:
+        shell: /bin/bash -e {0}
+        working-directory: ${{ github.workspace }}
     steps:
       - run: pwd
       - run: df -h
