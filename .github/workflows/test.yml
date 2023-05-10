@@ -26,6 +26,7 @@ jobs:
         working-directory: /github/home/bottles
     steps:
       - run: |
+          id
           whoami
           id -Gn
           ls -al /github
