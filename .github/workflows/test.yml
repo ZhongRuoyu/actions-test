@@ -23,7 +23,7 @@ jobs:
     defaults:
       run:
         shell: /bin/bash -e {0}
-        working-directory: /github/home/bottles
+        working-directory: /github/home
     steps:
       - uses: Homebrew/actions/setup-homebrew@master
       - run: pwd
