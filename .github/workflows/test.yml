@@ -30,4 +30,5 @@ jobs:
       - run: echo "$HOME"
       - run: |
           touch trurl--0.6.x86_64_linux.bottle.tar.gz
+          mkdir -p "$HOME/.cache/Homebrew/downloads"
           ln trurl--0.6.x86_64_linux.bottle.tar.gz "$HOME/.cache/Homebrew/downloads/9042b5f5be53e96e5d655ec798bf4fc11a291aedf0001414d1fdcbfe89137d74--trurl--0.6.x86_64_linux.bottle.tar.gz"
