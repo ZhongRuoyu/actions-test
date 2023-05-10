@@ -1,0 +1,27 @@
+name: test
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - invalid-cross-device-link
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Ubuntu 22.04
+            runs-on: ubuntu-22.04
+            container: ghcr.io/homebrew/ubuntu22.04:master
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.runs-on }}
+    container: ${{ matrix.container }}
+    steps:
+      - run: pwd
+      - run: df -h
+      - run: echo "$HOME"
+      - run: |
+          touch trurl--0.6.x86_64_linux.bottle.tar.gz
+          ln trurl--0.6.x86_64_linux.bottle.tar.gz "$HOME/.cache/Homebrew/downloads/9042b5f5be53e96e5d655ec798bf4fc11a291aedf0001414d1fdcbfe89137d74--trurl--0.6.x86_64_linux.bottle.tar.gz"
