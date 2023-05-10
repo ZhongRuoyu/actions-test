@@ -30,8 +30,6 @@ jobs:
           whoami
           id -Gn
           echo '${{ github.workspace }}'
-          ls -al /github
-          ls -al ${{ github.workspace }}
           rm -rvf ${{ github.workspace }}/bottles
           mkdir ${{ github.workspace }}/bottles
         working-directory: ${{ github.workspace }}
