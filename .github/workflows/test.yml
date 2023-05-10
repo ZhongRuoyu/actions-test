@@ -27,8 +27,8 @@ jobs:
     steps:
       - run: |
           pwd
-          rm -rvf '${{ github.workspace }}/bottles'
-          mkdir '${{ github.workspace }}/bottles'
+          rm -rvf bottles
+          mkdir bottles
         working-directory: ${{ github.workspace }}
       - run: pwd
       - run: df -h
