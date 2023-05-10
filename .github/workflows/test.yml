@@ -23,7 +23,7 @@ jobs:
     defaults:
       run:
         shell: /bin/bash -e {0}
-        working-directory: /github/home
+        working-directory: /github/home/bottles
     steps:
       - run: pwd
       - run: df -h
