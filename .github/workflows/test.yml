@@ -23,15 +23,10 @@ jobs:
     defaults:
       run:
         shell: /bin/bash -e {0}
-        working-directory: ${{ github.workspace }}/bottles
+        working-directory: /github/home/bottles
     steps:
-      - run: |
-          pwd
-          rm -rvf bottles
-          mkdir bottles
-        working-directory: ${{ github.workspace }}
+      - uses: Homebrew/actions/setup-homebrew@master
       - run: pwd
-      - run: df -h
       - run: echo "$HOME"
       - run: |
           touch trurl--0.6.x86_64_linux.bottle.tar.gz
