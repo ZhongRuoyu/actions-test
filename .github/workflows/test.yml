@@ -28,6 +28,7 @@ jobs:
       - run: |
           rm -rvf /github/home/bottles
           mkdir /github/home/bottles
+        working-directory: /github/home
       - run: pwd
       - run: df -h
       - run: echo "$HOME"
