@@ -1,0 +1,50 @@
+name: Check `mkfifoat` and `mknodat` on macOS
+
+on:
+  push:
+    branches:
+      - macos-mkfifoat-mknodat
+
+jobs:
+  mkfifoat-mknodat:
+    strategy:
+      matrix:
+        os:
+          - macos-11
+        target:
+          - aarch64
+          - x86_64
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    steps:
+      - if: matrix.os == 'macos-11' && matrix.target == 'aarch64'
+        run: |
+          echo "SDKROOT=/Applications/Xcode_12.5.1.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.3.sdk" >> "$GITHUB_ENV"
+      - if: matrix.os == 'macos-11' && matrix.target == 'x86_64'
+        run: |
+          echo "SDKROOT=/Applications/Xcode_12.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk" >> "$GITHUB_ENV"
+      - run: |
+          xcrun --show-sdk-path
+          xcrun --show-sdk-version
+          xcrun --show-sdk-build-version
+          xcrun --show-sdk-platform-path
+          xcrun --show-sdk-platform-version
+      - run: |
+          cat "$(xcrun --show-sdk-path)/usr/include/sys/stat.h"
+      - run: |
+          cat <<EOF >test.c
+          #include <sys/types.h>
+          #include <sys/stat.h>
+          int main() {
+            mkfifoat(42, "/dummy/argument", 0777);
+            mknodat(42, "/dummy/argument", 0777, 42);
+          }
+          EOF
+      - run: |
+          /usr/bin/cc test.c -target aarch64-apple-darwin
+          file a.out
+          nm a.out | grep -E 'mk(fifoat|nodat)'
+      - run: |
+          /usr/bin/cc test.c -target x86_64-apple-darwin
+          file a.out
+          nm a.out | grep -E 'mk(fifoat|nodat)'
