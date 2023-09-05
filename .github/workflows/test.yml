@@ -1,0 +1,24 @@
+name: Reproduce Homebrew/brew issue 13957
+
+on:
+  push:
+    branches:
+      - brew-13957
+
+jobs:
+  brew-13957:
+    strategy:
+      matrix:
+        os:
+          - macos-11
+          - macos-12
+          - macos-13
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    steps:
+      - run: ls -al "$(brew --cache)" || true
+      - run: brew config
+      - run: brew doctor || true
+      - run: brew ls --formula --versions
+      - run: brew update
+      - run: brew reinstall harfbuzz
