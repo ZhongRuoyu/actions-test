@@ -1,0 +1,34 @@
+name: test
+
+on:
+  push:
+    branches:
+      - download-artifacts-merge-multiple
+
+jobs:
+  upload:
+    strategy:
+      matrix:
+        number:
+          - 1
+          - 2
+          - 3
+    runs-on: ubuntu-latest
+    steps:
+    - run: |
+        mkdir numbers
+        echo "${{ matrix.number }}" > numbers/${{ matrix.number }}.txt
+    - uses: actions/upload-artifact@v4
+      with:
+        name: numbers-${{ matrix.number }}
+        path: numbers
+  download:
+    needs: upload
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/download-artifact@v4
+      with:
+        path: numbers
+        pattern: numbers-*
+        merge-multiple: true
+    - run: ls -R numbers
