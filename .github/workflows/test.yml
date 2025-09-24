@@ -1,0 +1,32 @@
+name: test
+
+on:
+  push:
+    branches:
+      - llvm-windows-build_llvm_release
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout llvm-project
+        uses: actions/checkout@v5
+        with:
+          repository: ZhongRuoyu/llvm-project
+          ref: cmake-diaguids
+
+      - name: Build
+        run: |
+          ./llvm/utils/release/build_llvm_release.bat `
+            --version 21.1.1 `
+            --x64 `
+            --skip-checkout `
+            --local-python
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: llvm-build
+          path: |
+            llvm_package_*/*.exe
+            llvm_package_*/*.tar.xz
