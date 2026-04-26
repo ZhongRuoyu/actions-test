@@ -201,10 +201,13 @@ RUN set -ex; \
   if [ "$LLVM_VERSION_MAJOR" -ge 13 ]; then \
     patch -p1 < patches/13.0.1/compiler-rt-include-cstdint.patch; \
   fi; \
+  if [ "$LLVM_VERSION_MAJOR" -ge 14 -a "$LLVM_VERSION_MAJOR" -lt 17 ]; then \
+    patch -p1 < patches/14.0.6/mlir-linalg-include-cstdint.patch; \
+  fi; \
   if [ "$LLVM_VERSION_MAJOR" -ge 13 -a "$LLVM_VERSION_MAJOR" -lt 16 ]; then \
-    patch -p1 < patches/13.0.1/mlir-include-cstdint.patch; \
+    patch -p1 < patches/13.0.1/mlir-lsp-server-include-cstdint.patch; \
   elif [ "$LLVM_VERSION_MAJOR" -ge 16 ]; then \
-    patch -p1 < patches/16.0.6/mlir-include-cstdint.patch; \
+    patch -p1 < patches/16.0.6/mlir-lsp-server-include-cstdint.patch; \
   fi; \
   \
   dir="$(mktemp -d)"; \
