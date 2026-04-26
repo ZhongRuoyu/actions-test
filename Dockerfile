@@ -134,9 +134,9 @@ RUN set -ex; \
   fi; \
   # [sanitizer] Remove crypt and crypt_r interceptors
   # https://github.com/llvm/llvm-project/commit/d7bead833631486e337e541e692d9b4a1ca14edd
-  if [ "$LLVM_VERSION_MAJOR" -ge 12 -a "$LLVM_VERSION_MAJOR" -lt 16 ]; then \
+  if [ "$LLVM_VERSION_MAJOR" -ge 12 -a "$LLVM_VERSION_MAJOR" -lt 15 ]; then \
     patch -p1 < patches/backports/12.0.1/compiler-rt-remove-crypt-and-crypt_r-interceptors.patch; \
-  elif [ "$LLVM_VERSION_MAJOR" -eq 16 ]; then \
+  elif [ "$LLVM_VERSION_MAJOR" -ge 15 -a "$LLVM_VERSION_MAJOR" -lt 17 ]; then \
     curl -fL "https://github.com/llvm/llvm-project/commit/d7bead833631486e337e541e692d9b4a1ca14edd.patch" | patch -p1; \
   fi; \
   # [Clang] Fix build with GCC 14 on ARM
