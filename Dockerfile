@@ -132,6 +132,13 @@ RUN set -ex; \
     [ "$LLVM_VERSION_MAJOR" -eq 14 -a "$LLVM_VERSION_MINOR" -eq 0 -a "$LLVM_VERSION_PATCH" -lt 5 ]; then \
     curl -fL "https://github.com/llvm/llvm-project/commit/ff1681ddb303223973653f7f5f3f3435b48a1983.patch" | patch -p1; \
   fi; \
+  # [sanitizer] Remove crypt and crypt_r interceptors
+  # https://github.com/llvm/llvm-project/commit/d7bead833631486e337e541e692d9b4a1ca14edd
+  if [ "$LLVM_VERSION_MAJOR" -ge 12 -a "$LLVM_VERSION_MAJOR" -lt 16 ]; then \
+    patch -p1 < patches/backports/12.0.1/compiler-rt-remove-crypt-and-crypt_r-interceptors.patch; \
+  elif [ "$LLVM_VERSION_MAJOR" -eq 16 ]; then \
+    curl -fL "https://github.com/llvm/llvm-project/commit/d7bead833631486e337e541e692d9b4a1ca14edd.patch" | patch -p1; \
+  fi; \
   # [Clang] Fix build with GCC 14 on ARM
   if [ "$LLVM_VERSION_MAJOR" -eq 17 ]; then \
     curl -fL "https://src.fedoraproject.org/rpms/clang/raw/f2215348e79ce1534141b0bbc5d4771ce580ddea/f/0001-Clang-Fix-build-with-GCC-14-on-ARM.patch" | patch -p1; \
@@ -168,6 +175,11 @@ RUN set -ex; \
   elif [ "$LLVM_VERSION_MAJOR" -eq 19 ]; then \
     patch -p1 < patches/backports/19.1.7/mlir-include-cstdint.patch; \
   fi; \
+  # [MLIR] Add missing include (NFC)
+  # https://github.com/llvm/llvm-project/commit/101109fc5460d5bb9bb597c6ec77f998093a6687
+  if [ "$LLVM_VERSION_MAJOR" -ge 10 -a "$LLVM_VERSION_MAJOR" -lt 20 ]; then \
+    curl -fL "https://github.com/llvm/llvm-project/commit/101109fc5460d5bb9bb597c6ec77f998093a6687.patch" | patch -p1; \
+  fi; \
   # Add missing include to X86MCTargetDesc.h (#123320)
   # https://github.com/llvm/llvm-project/commit/7abf44069aec61eee147ca67a6333fc34583b524
   if [ "$LLVM_VERSION_MAJOR" -ge 11 -a "$LLVM_VERSION_MAJOR" -lt 19 ]; then \
@@ -185,6 +197,14 @@ RUN set -ex; \
   # https://github.com/llvm/llvm-project/commit/c99b1bcd505064f2e086e6b1034ce0b0c91ea5b9
   if [ "$LLVM_VERSION_MAJOR" -ge 12 -a "$LLVM_VERSION_MAJOR" -lt 21 ]; then \
     patch -p1 < patches/backports/12.0.1/compiler-rt-termio-ioctls.patch; \
+  fi; \
+  if [ "$LLVM_VERSION_MAJOR" -ge 13 ]; then \
+    patch -p1 < patches/13.0.1/compiler-rt-include-cstdint.patch; \
+  fi; \
+  if [ "$LLVM_VERSION_MAJOR" -ge 13 -a "$LLVM_VERSION_MAJOR" -lt 16 ]; then \
+    patch -p1 < patches/13.0.1/mlir-include-cstdint.patch; \
+  elif [ "$LLVM_VERSION_MAJOR" -ge 16 ]; then \
+    patch -p1 < patches/16.0.6/mlir-include-cstdint.patch; \
   fi; \
   \
   dir="$(mktemp -d)"; \
