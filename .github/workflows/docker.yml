@@ -1,0 +1,37 @@
+name: Build and push Docker images
+
+on:
+  push:
+    branches:
+      - llvm-ports-resolute
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        llvm-version:
+          - "22.1.4"
+          - "21.1.8"
+          - "20.1.8"
+          - "19.1.7"
+          - "18.1.8"
+          - "17.0.6"
+          - "16.0.6"
+          - "15.0.7"
+          - "14.0.6"
+          - "13.0.1"
+        base-image-tag:
+          - resolute
+        llvm-configuration:
+          - ""
+          - slim
+    uses: ./.github/workflows/docker-build.yml
+    with:
+      llvm-version: ${{ matrix.llvm-version }}
+      base-image-tag: ${{ matrix.base-image-tag }}
+      llvm-configuration: ${{ matrix.llvm-configuration }}
