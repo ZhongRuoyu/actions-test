@@ -1,0 +1,17 @@
+name: test
+
+on:
+  push:
+    branches:
+      - event-json
+
+permissions: {}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          jq <<< "$EVENT"
+        env:
+          EVENT: ${{ toJSON(github.event) }}
