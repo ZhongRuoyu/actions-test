@@ -12,6 +12,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          jq <<< "$EVENT"
+          commit_count="$(jq --raw-output '.commits | length' <<< "$EVENT")"
+          before="$(jq --raw-output '.before' <<< "$EVENT")"
+          after="$(jq --raw-output '.after' <<< "$EVENT")"
+          compare_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/compare/$before...$after"
+          commit_messages="$(
+            jq --raw-output \
+              '[ .commits[].message | split("\n")[0] | "- \(.)" ] | join("\n")' \
+              <<< "$EVENT"
+          )"
+
+          cat <<EOF > message.md
+          [$commit_count new commit(s)]($compare_url) in $GITHUB_REPOSITORY branch $GITHUB_REF_NAME by $GITHUB_ACTOR:
+          $commit_messages
+          EOF
+
+          cat message.md
         env:
           EVENT: ${{ toJSON(github.event) }}
